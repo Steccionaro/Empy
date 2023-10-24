@@ -2,10 +2,10 @@ package com.example.empy;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.KeyEvent;
-import android.view.Window;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -15,6 +15,7 @@ public class MainActivity extends AppCompatActivity {
 
     WebView web;
 
+    @SuppressLint({"WebViewApiAvailability", "SetJavaScriptEnabled"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,14 +40,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) { //function tu go back with system navigation
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
-            switch (keyCode) {
-                case KeyEvent.KEYCODE_BACK:
-                    if (web.canGoBack()) {
-                        web.goBack();
-                    } else {
-                        finish();
-                    }
-                    return true;
+            if (keyCode == KeyEvent.KEYCODE_BACK) {
+                if (web.canGoBack()) {
+                    web.goBack();
+                } else {
+                    finish();
+                }
+                return true;
             }
 
         }
