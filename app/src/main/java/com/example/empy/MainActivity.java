@@ -6,10 +6,14 @@ import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.Window;
+import android.webkit.CookieSyncManager;
+import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,14 +29,36 @@ public class MainActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             web.getWebViewClient();
         }
-        web.loadUrl("https://www.amazon.it/");
+
+        web.loadUrl("http://empy.ddns.net/");
+
+        CookieSyncManager.createInstance(getBaseContext());
+        final MainActivity activity = this;
+        web.setWebChromeClient(new WebChromeClient() {
+            public void onProgressChanged(WebView view, int progress) {
+                // Activities and WebViews measure progress with different scales.
+                // The progress meter will automatically disappear when we reach 100%
+                activity.setProgress(progress * 1000);
+            }
+        });
 
         web.setWebViewClient(new WebViewClient() { //stay on the app when tapping on a link
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 view.loadUrl(request.getUrl().toString());
                 return false;
             }
+            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                //Users will be notified in case there's an error (i.e. no internet connection)
+                Toast.makeText(activity, "Oh no! " + description, Toast.LENGTH_SHORT).show();
+            }
+
+            public void onPageFinished(WebView view, String url) {
+                CookieSyncManager.getInstance().sync();
+            }
         });
+
+        CookieSyncManager.getInstance().startSync();
+        CookieSyncManager.getInstance().sync();
 
     }
 
